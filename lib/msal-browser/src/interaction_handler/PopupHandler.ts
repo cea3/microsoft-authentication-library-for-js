@@ -118,12 +118,19 @@ export class PopupHandler extends InteractionHandler {
      * @hidden
      */
     private openPopup(urlNavigate: string, popup?: Window|null): Window {
+        var userAgent = navigator.userAgent.toLowerCase();
+        var isElectronApp = userAgent.indexOf(' electron/') > -1;
         try {
             let popupWindow;
             // Popup window passed in, setting url to navigate to
             if (popup) {
                 popupWindow = popup;
-                popupWindow.location.assign(urlNavigate);
+                if (isElectronApp) {
+                    // @ts-ignore
+                    popupWindow.location = urlNavigate;
+                } else {
+                    popupWindow.location.assign(urlNavigate);
+                }
             } else if (typeof popup === "undefined") {
                 // Popup will be undefined if it was not passed in
                 popupWindow = PopupHandler.openSizedPopup(urlNavigate);
